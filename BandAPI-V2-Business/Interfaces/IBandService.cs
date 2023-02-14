@@ -13,9 +13,9 @@ namespace BandAPI_V2_Business.Interfaces
         Task  <List<BandListDto>> GetAll();
 
         Task Create(BandCreateDto dto);
-        Task<BandListDto> GetById(object id);
+        Task<BandDto> GetById(int id);
 
-        Task Remove(object id);
+        Task Remove(int id);
 
         Task UpdateBand(BandUpdateDto dto); 
 

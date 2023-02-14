@@ -37,7 +37,7 @@ namespace BandAPI_V2_DataAccess.Repositories
 
         }
 
-        public async Task<T> GetById(object id)
+        public async Task<T> GetById(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }

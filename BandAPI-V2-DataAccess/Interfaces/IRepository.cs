@@ -12,7 +12,7 @@ namespace BandAPI_V2_DataAccess.Interfaces
 
         Task<List<T>> GetAll();
 
-        Task<T> GetById(object id);
+        Task<T> GetById(int id);
 
         Task Create(T entity);
 

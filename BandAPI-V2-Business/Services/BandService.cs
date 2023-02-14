@@ -53,7 +53,7 @@ namespace BandAPI_V2_Business.Services
             return bandList;
         }
 
-        public async  Task<BandListDto> GetById(object id)
+        public async  Task<BandDto> GetById(int id)
         {
             var band = await _uow.GetRepository<Band>().GetById(id);
             return (new()
@@ -65,7 +65,7 @@ namespace BandAPI_V2_Business.Services
             });
         }
 
-        public async Task Remove(object id)
+        public async Task Remove(int id)
         {
             var deletedBand = await _uow.GetRepository<Band>().GetById(id);
 

@@ -3,18 +3,16 @@ using BandAPI_V2_Business.DependencyResolvers.Microsoft;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
 
-builder.Services.AddDependencies();
-
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen();
+builder.Services.AddDependencies();
 
 var app = builder.Build();
 
-
-
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -22,21 +20,10 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseSwagger(x => x.SerializeAsV2 = true);
-
-app.UseStaticFiles();
-
-app.UseRouting();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapDefaultControllerRoute();
-
-});
-
-
-app.MapRazorPages();
+app.MapControllers();
 
 app.Run();
