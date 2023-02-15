@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>BandAPI_V2_Business</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BandAPI-V2-DataAccess\BandAPI-V2-DataAccess.csproj" />
+    <ProjectReference Include="..\BandAPI-V2-DTOS\BandAPI-V2-DTOS.csproj" />
+  </ItemGroup>
+
+</Project>
