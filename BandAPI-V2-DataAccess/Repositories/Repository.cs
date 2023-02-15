@@ -37,7 +37,7 @@ namespace BandAPI_V2_DataAccess.Repositories
 
         }
 
-        public async Task<T> GetById(int id)
+        public async Task<T> Find(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
@@ -49,9 +49,10 @@ namespace BandAPI_V2_DataAccess.Repositories
             _context.Set<T>().Remove(entity);
         }
 
-        public void Update(T entity)
+        public void Update(T entity , T unchanged)
         {
-            _context.Set<T>().Update(entity);
+           
+            _context.Entry(unchanged).CurrentValues.SetValues(entity);
         }
 
         public IQueryable<T> GetQuery()

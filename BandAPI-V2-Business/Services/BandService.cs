@@ -1,7 +1,10 @@
-﻿using BandAPI_V2_Business.Interfaces;
+﻿using AutoMapper;
+using BandAPI_V2_Business.Interfaces;
+using BandAPI_V2_Common.ResponseObjects;
 using BandAPI_V2_DataAccess.UnitOfWork;
 using BandAPI_V2_DTOS.BandDtos;
 using BandAPI_V2_Entities.Concrete;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,78 +17,123 @@ namespace BandAPI_V2_Business.Services
     {
         private readonly IUow _uow;
 
-        public BandService(IUow uow)
+        private readonly IMapper _mapper;
+
+        private readonly IValidator<BandCreateDto> _createDtoValidator;
+        private readonly IValidator<BandUpdateDto> _updateDtoValidator;
+      
+        public BandService(IUow uow, IMapper mapper, IValidator<BandCreateDto> createDtoValidator, IValidator<BandUpdateDto> updateDtoValidator)
         {
             _uow = uow;
+            _mapper = mapper;
+            _createDtoValidator = createDtoValidator;
+            _updateDtoValidator = updateDtoValidator;
+           
         }
 
-        public async Task Create(BandCreateDto dto)
+        public async Task <IResponse<BandCreateDto>> Create(BandCreateDto dto)
         {
-            await _uow.GetRepository<Band>().Create(new()
-            {
-                Genre = dto.Genre,
-                Name = dto.Name,
-                Country = dto.Country,
-            });
-            await _uow.SaveChanges();
-        }
 
-        public async Task<List<BandListDto>> GetAll()
-        {
-          var list =  await _uow.GetRepository<Band>().GetAll();
-            var bandList = new List<BandListDto>();
-            if (list != null && list.Count>0)
+            var validatonResult = _createDtoValidator.Validate(dto);
+
+            if (validatonResult.IsValid)
             {
-                foreach (var band in list)
+                await _uow.GetRepository<Band>().Create(_mapper.Map<Band>(dto));
+                await _uow.SaveChanges();
+                return new Response<BandCreateDto>(ResponseType.Success, dto);
+            }
+            else
+            {
+                List<CustomValidationError> errors = new();
+                foreach (var error in validatonResult.Errors)
                 {
-                    bandList.Add(new()
+                    errors.Add(new()
                     {
-                        id = band.id,
-                        Genre = band.Genre,
-                        Country = band.Country,
-                        Name = band.Name,
-                    }) ;
-
+                        ErrorMessage = error.ErrorMessage,
+                        PropertyName = error.PropertyName
+                    });
+                   
                 }
+                return new Response<BandCreateDto>(ResponseType.ValidationError, dto);
+            }
+            
+        }
+
+
+
+        public async Task<IResponse<List<BandListDto>>> GetAll()
+        {
+         
+          var data = _mapper.Map<List<BandListDto>>(await _uow.GetRepository<Band>().GetAll());
+            return new Response<List<BandListDto>>(ResponseType.Success, data);
+        }
+
+        public async Task<IResponse<BandDto>> GetById(int id)
+        {
+          
+            //});
+            var data = _mapper.Map<BandDto>(await _uow.GetRepository<Band>().Find(id));
+            if (data == null)
+            {
+                return new Response<BandDto>(ResponseType.NotFound, $"{id} ye ait data bulunamadı");
+            }
+            return new Response<BandDto>(ResponseType.Success, data);
+        }
+
+        public async Task<IResponse> Remove(int id)
+        {
+
+            var deletedBand = await _uow.GetRepository<Band>().GetByFilter(x => x.id == id);
+
+            if (deletedBand !=null)
+            {
+                _uow.GetRepository<Band>().Remove(deletedBand);
+
+                await _uow.SaveChanges();
+                return new Response(ResponseType.Success);
+            }
+            return new Response(ResponseType.NotFound, $"{id} ye ait data bulunamadı");
+
+        }
+
+       
+        public async Task <IResponse<BandUpdateDto>>UpdateBand(BandUpdateDto dto)
+        {
+  
+            var result = _updateDtoValidator.Validate(dto);
+
+            if (result.IsValid)
+            {
+
+                var updatedEntity = await _uow.GetRepository<Band>().Find(dto.id);
+
+                if (updatedEntity != null)
+                {
+                    _uow.GetRepository<Band>().Update(_mapper.Map<Band>(dto),updatedEntity);
+
+                    await _uow.SaveChanges();
+                    return new Response<BandUpdateDto>(ResponseType.Success, dto);
+                }
+                return new Response<BandUpdateDto>(ResponseType.NotFound, $"{dto.id} ye ait data bulunamadı");
 
             }
-
-            return bandList;
-        }
-
-        public async  Task<BandDto> GetById(int id)
-        {
-            var band = await _uow.GetRepository<Band>().GetById(id);
-            return (new()
+            else
             {
+                List<CustomValidationError> errors = new();
+                foreach (var error in result.Errors)
+                {
+                    errors.Add(new()
+                    {
+                        ErrorMessage = error.ErrorMessage,
+                        PropertyName = error.PropertyName
+                    });
 
-                Genre = band.Genre,
-                Country = band.Country,
-                Name = band.Name,
-            });
+                }
+                return new Response<BandUpdateDto>(ResponseType.ValidationError, dto,errors);
+            }
+            
         }
 
-        public async Task Remove(int id)
-        {
-            var deletedBand = await _uow.GetRepository<Band>().GetById(id);
-
-            _uow.GetRepository<Band>().Remove(deletedBand);
-
-            await _uow.SaveChanges();
-        }
-
-        public async Task UpdateBand(BandUpdateDto dto)
-        {
-             _uow.GetRepository<Band>().Update(new()
-            {
-                Name = dto.Name,
-                id  = dto.id,
-                Genre = dto.Genre,
-                Country = dto.Country,
-
-
-            });
-            await _uow.SaveChanges();
-        }
+        
     }
 }

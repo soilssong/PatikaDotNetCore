@@ -1,7 +1,12 @@
-﻿using BandAPI_V2_Business.Interfaces;
+﻿using AutoMapper;
+using BandAPI_V2_Business.Interfaces;
+using BandAPI_V2_Business.Mapping;
 using BandAPI_V2_Business.Services;
+using BandAPI_V2_Business.ValidationRules;
 using BandAPI_V2_DataAccess.Contexts;
 using BandAPI_V2_DataAccess.UnitOfWork;
+using BandAPI_V2_DTOS.BandDtos;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -22,9 +27,21 @@ namespace BandAPI_V2_Business.DependencyResolvers.Microsoft
             {
                 opt.UseSqlServer("server = LAPTOP-AR6JTJQR; database = MetalBlog; integrated security = true; Encrypt=False ");
             });
+            var configuration = new MapperConfiguration(opt =>
+            {
+                opt.AddProfile(new BandProfile());
+            });
+
+            var mapper = configuration.CreateMapper();
+
+            services.AddSingleton(mapper);
 
             services.AddScoped<IUow, Uow>();
             services.AddScoped<IBandService, BandService>();
+
+            services.AddTransient<IValidator<BandCreateDto>, BandCreateDtoValidator>();
+
+            services.AddTransient<IValidator<BandUpdateDto>, BandUpdateDtoValidator>();
         }
     }
 }

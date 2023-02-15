@@ -19,21 +19,23 @@ namespace BandAPI__V2.Controllers
         [HttpGet]
         public async Task<List<BandListDto>> GetBands()
         {
-            var bandList = await _bandService.GetAll();
-            return bandList;
+            var response = await _bandService.GetAll();
+            return Ok(response);
+
         }
 
         [HttpGet]
         public async Task<BandDto> GetBandsbyId(int id)
         {
-            var bandList = await _bandService.GetById(id);
-            return bandList;
+            var band = await _bandService.GetById(id);
+            return band;
         }
 
         [HttpDelete]
         public async Task RemoveBand(int id)
         {
-            await _bandService.Remove(id);
+                          
+                await _bandService.Remove(id);
         }
 
 
@@ -47,7 +49,7 @@ namespace BandAPI__V2.Controllers
         [HttpPatch]
         public async Task UpdateBand(BandUpdateDto dto)
         {
-            await _bandService.UpdateBand(dto);
+            await _bandService.Update(dto);
         }
     }
 }

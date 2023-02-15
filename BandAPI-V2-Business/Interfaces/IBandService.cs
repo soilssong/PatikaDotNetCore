@@ -1,4 +1,5 @@
-﻿using BandAPI_V2_DTOS.BandDtos;
+﻿using BandAPI_V2_Common.ResponseObjects;
+using BandAPI_V2_DTOS.BandDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +11,14 @@ namespace BandAPI_V2_Business.Interfaces
     public  interface IBandService
     {
 
-        Task  <List<BandListDto>> GetAll();
+        Task<IResponse<List<BandListDto>>> GetAll();
 
-        Task Create(BandCreateDto dto);
-        Task<BandDto> GetById(int id);
+        Task<IResponse<BandCreateDto>> Create(BandCreateDto dto);
+        Task<IResponse<BandDto>> GetById(int id);
 
-        Task Remove(int id);
+        Task <IResponse> Remove(int id);
 
-        Task UpdateBand(BandUpdateDto dto); 
+        Task<IResponse<BandUpdateDto>> UpdateBand(BandUpdateDto dto); 
 
     }
 }
