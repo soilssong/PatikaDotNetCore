@@ -1,11 +1,15 @@
 ﻿using BandAPIV3.Practicum.Core.Application.CQRS.Commands;
 using BandAPIV3.Practicum.Core.Application.CQRS.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BandAPIV3.Practicum.Controllers
 {
+
+    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Member")]
     [Route("api/[controller]")]
     [ApiController]
   
@@ -64,7 +68,7 @@ namespace BandAPIV3.Practicum.Controllers
         public async Task<IActionResult> DeleteGenre(int id)
         {
             var data = await _mediator.Send(new DeleteGenreCommandRequest(id));
-            return NoContent();
+            return Ok();
         }
     }
 
